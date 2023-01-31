@@ -6,17 +6,6 @@ import plotly.express as px
 import plotly.graph_objs as go
 from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, classification_report
 
-'''
-
-@st.cache
-def plot_roc_curve(y_true, y_pred, label):
-    fpr, tpr, thresholds = roc_curve(y_true, y_pred)
-    roc_auc = auc(fpr, tpr)
-    plt.plot(fpr, tpr, lw=2, label=f'{label} (AUC = %0.2f)' % roc_auc)
-    plt.legend(loc="lower right")
-    return roc_auc
-'''
-
 @st.cache(allow_output_mutation=True)
 def load_data(file):
     df = pd.read_csv(file)
