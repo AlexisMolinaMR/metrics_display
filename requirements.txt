@@ -1,5 +1,5 @@
 matplotlib
 pandas
-sklearn
+scikit-learn
 plotly
 seaborn
