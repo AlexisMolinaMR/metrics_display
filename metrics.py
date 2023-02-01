@@ -34,7 +34,7 @@ def interactive_scatter_plot(df):
     # add a callback function that updates the R^2 value on selection
     def update_r2(trace, points, selector):
         selected_points = np.array(points.point_inds)
-        r2 = compute_r2(selected_points, df['x'], df['y'])
+        r2 = compute_r2(selected_points, selected_points)
         fig.layout.annotations[0].text = f"R2: {r2:.3f}"
 
     fig.layout.updatemenus = [
