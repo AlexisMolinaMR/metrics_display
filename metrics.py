@@ -56,6 +56,10 @@ def interactive_scatter_plot(df):
 
 
 def compute_r2(df, selected_points_src):
+
+    if selected_points_src is None:
+        return -1
+        
     selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src['points']],
                                     "actual": [df.loc[i]['actual'] for i in selected_points_src['points']]})
     r2 = r2_score(selected_points['actual'], selected_points['predicted'])
