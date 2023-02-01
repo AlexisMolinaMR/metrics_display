@@ -5,7 +5,9 @@ import seaborn as sns
 import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
-from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, classification_report
+from plotly.subplots import make_subplots
+import plotly.graph_objs as go
+from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, classification_report, r2_score
 
 @st.cache(allow_output_mutation=True)
 def load_data(file):
@@ -22,20 +24,30 @@ def load_data(file):
    # return fig
 
 @st.cache(allow_output_mutation=True)
+
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
-    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
 
-    # calculate R^2
-    y_mean = np.mean(df['actual'])
-    ss_tot = np.sum((df['actual'] - y_mean)**2)
-    ss_res = np.sum((df['actual'] - df['predicted'])**2)
-    r2 = 1 - (ss_res / ss_tot)
+    # create a subplot with two scatter plots (one for the points and one for the R^2 value)
+    fig = make_subplots(rows=2, cols=1, specs=[[{'type': 'scatter'}], [{'type': 'scatter'}]])
+
+    # add the points scatter plot to the first subplot
+    fig.add_trace(go.Scatter(x=df['predicted'], y=df['actual'], mode='markers', marker=dict(color=df['error'], coloraxis="coloraxis"), showlegend=False))
+
+    # add the R^2 value scatter plot to the second subplot
+    fig.add_trace(go.Scatter(x=[df['predicted'].min(), df['predicted'].max()], y=[df['actual'].min(), df['actual'].max()], mode='lines', line=dict(color='black', width=2), showlegend=False))
+
+    # calculate R^2 using sklearn
+    r2 = r2_score(df['actual'], df['predicted'])
+
+    # add a text annotation to display the R^2 value
+    fig.add_annotation(x=df['predicted'].min(), y=df['actual'].min(), xref="x", yref="y", text=f"R^2: {r2:.3f}", showarrow=False)
 
     # update the plot's title and axis labels
-    fig.update_layout(title=f'Predicted vs Actual (Colored by Absolute Error)<br>R^2: {r2:.3f}',
+    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)',
                       xaxis_title='Predicted',
-                      yaxis_title='Actual')
+                      yaxis_title='Actual',
+                      coloraxis=dict(colorscale='Viridis', cmin=df['error'].min(), cmax=df['error'].max()))
 
     return fig
 
