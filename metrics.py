@@ -168,7 +168,6 @@ def main():
 
         # add a callback for selection and deselection events
         fig.data[0].on_selection(update_r2)
-        fig.data[0].on_deselection(update_r2)
 
         # display the plot in Streamlit
         st.plotly_chart(fig)
