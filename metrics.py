@@ -81,9 +81,11 @@ def main():
        # plt.xlabel('False Positive Rate')
        # plt.ylabel('True Positive Rate')
      #   plot_roc_curve(y_true_bin, y_pred_bin, f"Threshold = {threshold}")
-        fig1 = plot_roc_curve(y_true_bin, y_pred_bin, threshold_preds, threshold_actual)
-        st.plotly_chart(fig1)
-        
+        try:
+            fig1 = plot_roc_curve(y_true_bin, y_pred_bin, threshold_preds, threshold_actual)
+            st.plotly_chart(fig1)
+        except:
+            st.write("Error. One of the classes run out of samples.")
     #    st.write("AUC:")
     #    auc = roc_auc_score(y_true_bin, y_pred_bin)
     #    st.write(auc)
