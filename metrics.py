@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
 from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, classification_report
@@ -19,7 +20,7 @@ def load_data(file):
   #  fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
     
    # return fig
-   
+
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
