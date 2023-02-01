@@ -4,88 +4,21 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
-from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix, classification_report, r2_score
-import numpy as np
-
+from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix, classification_report
 
 @st.cache(allow_output_mutation=True)
 def load_data(file):
     df = pd.read_csv(file)
     return df
 
+
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
-    # plot the scatter plot
     fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
-
+    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
     
-    def compute_r2(df, selected_points_src):
-
-        if selected_points_src is None:
-            return -1
-
-        selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src.get('points', [])],
-                                        "actual": [df.loc[i]['actual'] for i in selected_points_src.get('points', [])]})
-        r2 = r2_score(selected_points['actual'], selected_points['predicted'])
-        
-        return r2
-
-    # add a callback function that updates the R^2 value on selection
-    def update_r2(trace, points, selector):
-        selected_points = np.array(points.point_inds)
-        r2 = compute_r2(selected_points, selected_points)
-        fig.layout.annotations[0].text = f"R2: {r2:.3f}"
-
-    fig.layout.updatemenus = [
-        {
-            'buttons': [
-                {
-                    'args': [None, {'selected': {'marker': {'color': 'red'}}}],
-                    'label': 'Select',
-                    'method': 'update'
-                },
-                {
-                    'args': [None, {'selected': {'marker': {'color': None}}}],
-                    'label': 'Deselect',
-                    'method': 'update'
-                }
-            ],
-            'direction': 'left',
-            'pad': {'r': 10, 't': 10},
-            'showactive': False,
-            'type': 'buttons',
-            'x': 0.1,
-            'xanchor': 'right',
-            'y': 1.1,
-            'yanchor': 'top'
-        }
-    ]
-
-    fig.layout.annotations = [
-        go.layout.Annotation(
-            x=0.05,
-            y=0.95,
-            xref='paper',
-            yref='paper',
-            text="R2:",
-            showarrow=False,
-            font=dict(size=14)
-        )
-    ]
-
-    # add a callback for selection events
-    fig.data[0].on_selection(update_r2)
-
     return fig
-
-#@st.cache(allow_output_mutation=True)
-#def interactive_scatter_plot(df):
-#    df['error'] = abs(df['predicted'] - df['actual'])
-#    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
-#    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
-    
-#    return fig
 
 @st.cache(allow_output_mutation=True)
 def plot_roc_curve(y_true, y_pred, threshold_actual, threshold_preds):
@@ -108,68 +41,8 @@ def main():
         df = load_data(file)
         y_true = df["actual"].values
         y_pred = df["predicted"].values
-        
-        def compute_r2(df, selected_points_src):
 
-            if selected_points_src is None:
-                return -1
-
-            selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src.get('points', [])],
-                                            "actual": [df.loc[i]['actual'] for i in selected_points_src.get('points', [])]})
-            r2 = r2_score(selected_points['actual'], selected_points['predicted'])
-            
-            return r2
-
-        def update_r2(trace, points, selector):
-            selected_points = np.array(points.point_inds)
-            r2 = compute_r2(selected_points, df['x'], df['y'])
-            fig.layout.annotations[0].text = f"R^2: {r2:.3f}"
-
-        df['error'] = abs(df['predicted'] - df['actual'])
-        # plot the scatter plot
-        fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
-
-        fig.layout.updatemenus = [
-            {
-                'buttons': [
-                    {
-                        'args': [None, {'selected': {'marker': {'color': 'red'}}}],
-                        'label': 'Select',
-                        'method': 'update'
-                    },
-                    {
-                        'args': [None, {'selected': {'marker': {'color': None}}}],
-                        'label': 'Deselect',
-                        'method': 'update'
-                    }
-                ],
-                'direction': 'left',
-                'pad': {'r': 10, 't': 10},
-                'showactive': False,
-                'type': 'buttons',
-                'x': 0.1,
-                'xanchor': 'right',
-                'y': 1.1,
-                'yanchor': 'top'
-            }
-        ]
-
-        fig.layout.annotations = [
-            go.layout.Annotation(
-                x=0.05,
-                y=0.95,
-                xref='paper',
-                yref='paper',
-                text="R^2:",
-                showarrow=False,
-                font=dict(size=14)
-            )
-        ]
-
-        # add a callback for selection and deselection events
-        fig.data[0].on_selection(update_r2)
-
-        # display the plot in Streamlit
+        fig = interactive_scatter_plot(df)
         st.plotly_chart(fig)
 
         threshold_actual = st.slider("Threshold on actual values",-13.,10., -5.5, 0.1)
