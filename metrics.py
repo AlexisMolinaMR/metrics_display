@@ -5,6 +5,8 @@ import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
 from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix, classification_report, r2_score
+import numpy as np
+
 
 @st.cache(allow_output_mutation=True)
 def load_data(file):
@@ -14,37 +16,70 @@ def load_data(file):
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
-    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
-    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
-    
+    # plot the scatter plot
+    fig = px.scatter(df, x='x', y='y')
 
-    def update_r2_text(selected_points_src):
-        r2 = compute_r2(df, selected_points_src)
-        fig.update_layout(annotations=[dict(text=f"R2: {r2:.2f}", showarrow=False, xref='paper', yref='paper', x=0.05, y=0.95, xanchor='left', yanchor='top')])
+    
+    def compute_r2(df, selected_points_src):
+
+        if selected_points_src is None:
+            return -1
+
+        selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src.get('points', [])],
+                                        "actual": [df.loc[i]['actual'] for i in selected_points_src.get('points', [])]})
+        r2 = r2_score(selected_points['actual'], selected_points['predicted'])
         
-    trace = fig.data[0]
-    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selectedpoints': trace.selectedpoints}, update_r2_text(trace.selectedpoints)])])])
+        return r2
 
-    # Add R² computation
-    fig.update_traces(mode='markers',
-                      marker=dict(size=12,
-                                  line=dict(width=2,
-                                            color='DarkSlateGrey')))
-    
+    # add a callback function that updates the R^2 value on selection
+    def update_r2(trace, points, selector):
+        selected_points = np.array(points.point_inds)
+        r2 = compute_r2(selected_points, df['x'], df['y'])
+        fig.layout.annotations[0].text = f"R2: {r2:.3f}"
+
+    fig.layout.updatemenus = [
+        {
+            'buttons': [
+                {
+                    'args': [None, {'selected': {'marker': {'color': 'red'}}}],
+                    'label': 'Select',
+                    'method': 'update'
+                },
+                {
+                    'args': [None, {'selected': {'marker': {'color': None}}}],
+                    'label': 'Deselect',
+                    'method': 'update'
+                }
+            ],
+            'direction': 'left',
+            'pad': {'r': 10, 't': 10},
+            'showactive': False,
+            'type': 'buttons',
+            'x': 0.1,
+            'xanchor': 'right',
+            'y': 1.1,
+            'yanchor': 'top'
+        }
+    ]
+
+    fig.layout.annotations = [
+        go.layout.Annotation(
+            x=0.05,
+            y=0.95,
+            xref='paper',
+            yref='paper',
+            text="R2:",
+            showarrow=False,
+            font=dict(size=14)
+        )
+    ]
+
+    # add a callback for selection events
+    fig.data[0].on_selection(update_r2)
 
     return fig
 
 
-def compute_r2(df, selected_points_src):
-
-    if selected_points_src is None:
-        return -1
-
-    selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src.get('points', [])],
-                                    "actual": [df.loc[i]['actual'] for i in selected_points_src.get('points', [])]})
-    r2 = r2_score(selected_points['actual'], selected_points['predicted'])
-    
-    return r2
 
 #@st.cache(allow_output_mutation=True)
 #def interactive_scatter_plot(df):
