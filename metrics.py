@@ -23,7 +23,7 @@ def interactive_scatter_plot(df):
         fig.update_layout(annotations=[dict(text=f"R2: {r2:.2f}", showarrow=False, xref='paper', yref='paper', x=0.05, y=0.95, xanchor='left', yanchor='top')])
         
     trace = fig.data[0]
-    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selectedpoints': trace.selectedpoints}, update_r2_text])])])
+    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selectedpoints': trace.selectedpoints},  lambda selected_points_src: update_r2_text(selected_points_src)])])])
 
     # Add R² computation
     fig.update_traces(mode='markers',
@@ -76,8 +76,8 @@ def main():
         y_true = df["actual"].values
         y_pred = df["predicted"].values
 
-        interactive_scatter_plot(df)
-        st.plotly_chart()
+        fig = interactive_scatter_plot(df)
+        st.plotly_chart(fig)
 
         threshold_actual = st.slider("Threshold on actual values",-13.,10., -5.5, 0.1)
         threshold_preds = st.slider("Threshold on predicted values",-13.,10., -5.5, 0.1)
