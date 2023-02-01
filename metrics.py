@@ -27,7 +27,7 @@ def plot_roc_curve(y_true, y_pred, threshold):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name='ROC curve (AUC = {:.2f})'.format(auc)))
     fig.add_shape(type='line', x0=0, y0=0, x1=1, y1=1, xref='x', yref='y', line=dict(color='red', dash='dash'))
-    fig.update_layout(title='Receiver Operating Characteristic (ROC) Curve - {}'.format(threshold), xaxis_title='False Positive Rate', yaxis_title='True Positive Rate')
+    fig.update_layout(title='Receiver Operating Characteristic (ROC) Curve - {} - AUC: {:.2f}'.format(threshold, auc), xaxis_title='False Positive Rate', yaxis_title='True Positive Rate')
     
     return fig
 
