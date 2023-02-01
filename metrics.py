@@ -17,7 +17,7 @@ def load_data(file):
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
     # plot the scatter plot
-    fig = px.scatter(df, x='actual', y='predicted', color='error', color_continuous_scale='Viridis')
+    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
 
     
     def compute_r2(df, selected_points_src):
