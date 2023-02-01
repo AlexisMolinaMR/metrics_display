@@ -21,13 +21,13 @@ def interactive_scatter_plot(df):
     return fig
 
 @st.cache(allow_output_mutation=True)
-def plot_roc_curve(y_true, y_pred, threshold):
+def plot_roc_curve(y_true, y_pred, threshold_actual, threshold_preds):
     fpr, tpr, _ = roc_curve(y_true, y_pred)
     auc = roc_auc_score(y_true, y_pred)
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=fpr, y=tpr, mode='lines', name='ROC curve (AUC = {:.2f})'.format(auc)))
     fig.add_shape(type='line', x0=0, y0=0, x1=1, y1=1, xref='x', yref='y', line=dict(color='red', dash='dash'))
-    fig.update_layout(title='Receiver Operating Characteristic (ROC) Curve - {} - AUC: {:.2f}'.format(threshold, auc), xaxis_title='False Positive Rate', yaxis_title='True Positive Rate')
+    fig.update_layout(title='Receiver Operating Characteristic (ROC) Curve - Actual threshold: {} - Predicted threshold: {} - AUC: {:.2f}'.format(threshold_actual, threshold_preds, auc), xaxis_title='False Positive Rate', yaxis_title='True Positive Rate')
     
     return fig
 
@@ -81,7 +81,7 @@ def main():
        # plt.xlabel('False Positive Rate')
        # plt.ylabel('True Positive Rate')
      #   plot_roc_curve(y_true_bin, y_pred_bin, f"Threshold = {threshold}")
-        fig1 = plot_roc_curve(y_true_bin, y_pred_bin, f"Threshold = {threshold}")
+        fig1 = plot_roc_curve(y_true_bin, y_pred_bin, threshold_preds, threshold_actual)
         st.plotly_chart(fig1)
         
     #    st.write("AUC:")
