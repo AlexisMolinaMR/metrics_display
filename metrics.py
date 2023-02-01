@@ -14,7 +14,7 @@ def load_data(file):
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
-    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
+    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis', symbol='diamond')
     fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
     
     # Add R² computation
@@ -53,6 +53,7 @@ def interactive_scatter_plot(df):
     ])
 
     return fig
+
 
 def compute_r2(df, selected_points_src):
     selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src['points']],
