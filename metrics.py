@@ -45,10 +45,11 @@ def main():
         fig = interactive_scatter_plot(df)
         st.plotly_chart(fig)
 
-        threshold = st.slider("Threshold",-13.,10., -5.5, 0.1)
+        threshold_actual = st.slider("Threshold on actual values",-13.,10., -5.5, 0.1)
+        threshold_preds = st.slider("Threshold on predicted values",-13.,10., -5.5, 0.1)
 
-        y_pred_bin = ['bad' if p >= threshold else 'good' for p in y_pred]
-        y_true_bin = ['bad' if p >= threshold else 'good' for p in y_true]
+        y_pred_bin = ['bad' if p >= threshold_preds else 'good' for p in y_pred]
+        y_true_bin = ['bad' if p >= threshold_actual else 'good' for p in y_true]
 
         st.write("Confusion Matrix:")
         cm = confusion_matrix(y_true_bin, y_pred_bin)
@@ -69,8 +70,8 @@ def main():
         cr = pd.DataFrame(cr)
         st.dataframe(cr) 
 
-        y_pred_bin = [0 if p >= threshold else 1 for p in y_pred]
-        y_true_bin = [0 if p >= threshold else 1 for p in y_true]
+        y_pred_bin = [0 if p >= threshold_preds else 1 for p in y_pred]
+        y_true_bin = [0 if p >= threshold_actual else 1 for p in y_true]
 
         st.write("ROC Curve:")
        # plt.figure(figsize=(8,6))
