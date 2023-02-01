@@ -4,13 +4,12 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import plotly.express as px
 import plotly.graph_objs as go
-from sklearn.metrics import roc_auc_score, roc_curve, auc, confusion_matrix, classification_report
+from sklearn.metrics import roc_auc_score, roc_curve, confusion_matrix, classification_report, r2_score
 
 @st.cache(allow_output_mutation=True)
 def load_data(file):
     df = pd.read_csv(file)
     return df
-
 
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
@@ -18,7 +17,57 @@ def interactive_scatter_plot(df):
     fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
     fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
     
+    # Add R² computation
+    fig.update_traces(mode='markers',
+                      marker=dict(size=12,
+                                  line=dict(width=2,
+                                            color='DarkSlateGrey')))
+    
+    fig.update_layout(updatemenus=[
+        dict(
+            type="buttons",
+            showactive=False,
+            buttons=[
+                dict(
+                    label="Show R²",
+                    method="update",
+                    args=[
+                        {"visible": [True, False]},
+                        {
+                            "title": "Predicted vs Actual (Colored by Absolute Error) - R² = {:.2f}".format(compute_r2(df, fig.data[0].selectedpointssrc)),
+                        }
+                    ]
+                ),
+                dict(
+                    label="Hide R²",
+                    method="update",
+                    args=[
+                        {"visible": [False, True]},
+                        {
+                            "title": "Predicted vs Actual (Colored by Absolute Error)",
+                        }
+                    ]
+                ),
+            ]
+        )
+    ])
+
     return fig
+
+def compute_r2(df, selected_points_src):
+    selected_points = pd.DataFrame({"predicted": [df.loc[i]['predicted'] for i in selected_points_src['points']],
+                                    "actual": [df.loc[i]['actual'] for i in selected_points_src['points']]})
+    r2 = r2_score(selected_points['actual'], selected_points['predicted'])
+    
+    return r2
+
+#@st.cache(allow_output_mutation=True)
+#def interactive_scatter_plot(df):
+#    df['error'] = abs(df['predicted'] - df['actual'])
+#    fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
+#    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
+    
+#    return fig
 
 @st.cache(allow_output_mutation=True)
 def plot_roc_curve(y_true, y_pred, threshold_actual, threshold_preds):
@@ -55,7 +104,7 @@ def main():
         cm = confusion_matrix(y_true_bin, y_pred_bin)
         
         ax= plt.subplot()
-        sns.heatmap(cm, annot=True, fmt='g', ax=ax);  #annot=True to annotate cells, ftm='g' to disable scientific notation
+        sns.heatmap(cm, annot=True, fmt='g', ax=ax)
 
         # labels, title and ticks
         ax.set_xlabel('Predicted labels')
@@ -74,21 +123,13 @@ def main():
         y_true_bin = [0 if p >= threshold_actual else 1 for p in y_true]
 
         st.write("ROC Curve:")
-       # plt.figure(figsize=(8,6))
-       # plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--')
-       # plt.xlim([0.0, 1.0])
-       # plt.ylim([0.0, 1.0])
-       # plt.xlabel('False Positive Rate')
-       # plt.ylabel('True Positive Rate')
-     #   plot_roc_curve(y_true_bin, y_pred_bin, f"Threshold = {threshold}")
+      
         try:
             fig1 = plot_roc_curve(y_true_bin, y_pred_bin, threshold_preds, threshold_actual)
             st.plotly_chart(fig1)
         except:
-            st.write("Error. One of the classes run out of samples.")
-    #    st.write("AUC:")
-    #    auc = roc_auc_score(y_true_bin, y_pred_bin)
-    #    st.write(auc)
+            st.error("Error. One of the classes run out of samples.")
+  
 
 if __name__ == "__main__":
     main()
