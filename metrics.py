@@ -23,7 +23,7 @@ def interactive_scatter_plot(df):
         fig.update_layout(annotations=[dict(text=f"R2: {r2:.2f}", showarrow=False, xref='paper', yref='paper', x=0.05, y=0.95, xanchor='left', yanchor='top')])
         
     trace = fig.data[0]
-    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selectedpoints': trace.selectedpoints},  lambda selected_points_src: update_r2_text(selected_points_src)])])])
+    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selectedpoints': trace.selectedpoints}, update_r2_text(trace.selectedpoints)])])])
 
     # Add R² computation
     fig.update_traces(mode='markers',
