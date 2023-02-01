@@ -17,40 +17,19 @@ def interactive_scatter_plot(df):
     fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
     fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
     
+
+    def update_r2_text(selected_points_src):
+        r2 = compute_r2(df, selected_points_src)
+        fig.update_layout(annotations=[dict(text=f"R2: {r2:.2f}", showarrow=False, xref='paper', yref='paper', x=0.05, y=0.95, xanchor='left', yanchor='top')])
+    
+    fig.update_layout(updatemenus=[dict(type='buttons', showactive=False, buttons=[dict(label='Compute R2', method='update', args=[{'selected': fig.selected, 'selectedPoints': fig.selectedpoints}, update_r2_text])])])
+
     # Add R² computation
     fig.update_traces(mode='markers',
                       marker=dict(size=12,
                                   line=dict(width=2,
                                             color='DarkSlateGrey')))
     
-    fig.update_layout(updatemenus=[
-        dict(
-            type="buttons",
-            showactive=False,
-            buttons=[
-                dict(
-                    label="Show R²",
-                    method="update",
-                    args=[
-                        {"visible": [True, False]},
-                        {
-                            "title": "Predicted vs Actual (Colored by Absolute Error) - R² = {:.2f}".format(compute_r2(df, fig.data[0].selectedpointssrc if hasattr(fig.data[0], "selectedpointssrc") else None)),
-                        }
-                    ]
-                ),
-                dict(
-                    label="Hide R²",
-                    method="update",
-                    args=[
-                        {"visible": [False, True]},
-                        {
-                            "title": "Predicted vs Actual (Colored by Absolute Error)",
-                        }
-                    ]
-                ),
-            ]
-        )
-    ])
 
     return fig
 
