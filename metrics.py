@@ -12,12 +12,30 @@ def load_data(file):
     return df
 
 
+#@st.cache(allow_output_mutation=True)
+#def interactive_scatter_plot(df):
+#    df['error'] = abs(df['predicted'] - df['actual'])
+ #   fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
+  #  fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
+    
+   # return fig
+   
 @st.cache(allow_output_mutation=True)
 def interactive_scatter_plot(df):
     df['error'] = abs(df['predicted'] - df['actual'])
     fig = px.scatter(df, x='predicted', y='actual', color='error', color_continuous_scale='Viridis')
-    fig.update_layout(title='Predicted vs Actual (Colored by Absolute Error)', xaxis_title='Predicted', yaxis_title='Actual')
-    
+
+    # calculate R^2
+    y_mean = np.mean(df['actual'])
+    ss_tot = np.sum((df['actual'] - y_mean)**2)
+    ss_res = np.sum((df['actual'] - df['predicted'])**2)
+    r2 = 1 - (ss_res / ss_tot)
+
+    # update the plot's title and axis labels
+    fig.update_layout(title=f'Predicted vs Actual (Colored by Absolute Error)<br>R^2: {r2:.3f}',
+                      xaxis_title='Predicted',
+                      yaxis_title='Actual')
+
     return fig
 
 @st.cache(allow_output_mutation=True)
