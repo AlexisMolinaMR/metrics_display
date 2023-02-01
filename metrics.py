@@ -34,7 +34,7 @@ def interactive_scatter_plot(df):
                     args=[
                         {"visible": [True, False]},
                         {
-                            "title": "Predicted vs Actual (Colored by Absolute Error) - R² = {:.2f}".format(compute_r2(df, fig.data[0].selectedpointssrc)),
+                            "title": "Predicted vs Actual (Colored by Absolute Error) - R² = {:.2f}".format(compute_r2(df, fig.data[0].selectedpointssrc if hasattr(fig.data[0], "selectedpointssrc") else None)),
                         }
                     ]
                 ),
