@@ -76,8 +76,8 @@ def main():
         y_true = df["actual"].values
         y_pred = df["predicted"].values
 
-        fig = interactive_scatter_plot(df)
-        st.plotly_chart(fig)
+        interactive_scatter_plot(df)
+        st.plotly_chart()
 
         threshold_actual = st.slider("Threshold on actual values",-13.,10., -5.5, 0.1)
         threshold_preds = st.slider("Threshold on predicted values",-13.,10., -5.5, 0.1)
