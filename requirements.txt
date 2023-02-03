@@ -4,3 +4,8 @@ scikit-learn
 plotly
 seaborn
 numpy
+umap-learn
+karateclub
+torch
+torch-geometric
+networkx
